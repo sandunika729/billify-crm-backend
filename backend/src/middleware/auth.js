@@ -1,0 +1,92 @@
+'use strict';
+
+const jwt = require('jsonwebtoken');
+const config = require('../config/app');
+const { User, Tenant, RolePermission } = require('../models');
+
+const authenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access denied. No token provided.',
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.jwt.accessSecret);
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired. Please refresh your token.',
+          code: 'TOKEN_EXPIRED',
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token.',
+      });
+    }
+
+    const user = await User.findOne({
+      where: { id: decoded.userId, business_id: decoded.tenantId, status: 'active' },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found or inactive.',
+      });
+    }
+
+    const tenant = await Tenant.findOne({
+      where: { id: user.business_id },
+    });
+
+    if (!tenant || !tenant.is_active) {
+      return res.status(403).json({
+        success: false,
+        message: 'Tenant account is inactive or suspended.',
+      });
+    }
+
+    
+    const rolePerms = await RolePermission.findAll({
+      where: { role: user.role, business_id: user.business_id }
+    });
+    
+    const permissionSet = new Set();
+    rolePerms.forEach(rp => {
+      permissionSet.add(rp.permission);
+    });
+
+    
+    req.user = {
+      id: user.id,
+      tenantId: user.business_id, 
+      email: user.email,
+      firstName: user.name, 
+      lastName: '',
+      role: user.role,
+      roles: [user.role], 
+      permissions: permissionSet,
+      tenant: tenant,
+    };
+
+    next();
+  } catch (error) {
+    console.error('Authentication middleware error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Authentication error.',
+    });
+  }
+};
+
+module.exports = { authenticate };
