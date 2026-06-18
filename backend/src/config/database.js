@@ -18,7 +18,7 @@ module.exports = {
     define: {
       timestamps: true,
       underscored: true,
-      paranoid: true, 
+      paranoid: true,
       charset: 'utf8mb4',
       collate: 'utf8mb4_unicode_ci',
     },
@@ -27,7 +27,7 @@ module.exports = {
       dateStrings: true,
       typeCast: true,
     },
-    timezone: '+05:30', 
+    timezone: '+05:30',
   },
 
   test: {
@@ -81,7 +81,7 @@ module.exports = {
     dialectOptions: {
       charset: 'utf8mb4',
       ssl: {
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
       },
     },
     timezone: '+05:30',
