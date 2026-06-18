@@ -9,11 +9,11 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config({ path: './src/config/.env' });
 
 // ─── CONFIG — edit these ────────────────────────────────────────────────────
-const TENANT_ID = 'dddba407-1ea2-4727-9b28-e02d7ca42037'; // your shop's business_id
-const SUPER_ADMIN_EMAIL    = 'superadmin@billify.lk';
+const TENANT_ID = 'Test Business 1'; // your shop's business_id
+const SUPER_ADMIN_EMAIL = 'superadmin@billify.lk';
 const SUPER_ADMIN_PASSWORD = 'Admin@123';
 const FIRST_NAME = 'Admin';
-const LAST_NAME  = 'Billify';
+const LAST_NAME = 'Billify';
 // ────────────────────────────────────────────────────────────────────────────
 
 async function run() {
