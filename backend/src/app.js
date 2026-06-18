@@ -16,8 +16,28 @@ const allowedOrigins = (config.cors.origin)
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const path = require('path');
-
 const app = express();
+
+const allowedOrigins = (config.cors.origin || 'https://billify-crm-frontend.vercel.app')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow server-to-server requests (no origin header) e.g. Postman, curl
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: Origin '${origin}' not allowed`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID'],
+};
+
+// Handle OPTIONS preflight for ALL routes before any other middleware
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(helmet());
 
@@ -39,17 +59,6 @@ app.use('/api/public', cors({
   allowedHeaders: ['Content-Type', 'x-api-key'],
 }), require('./routes/public'));
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: Origin '${origin}' not allowed`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID'],
-}));
 
 app.use('/api', routes);
 
