@@ -7,6 +7,12 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const config = require('./config/app');
+
+// Support multiple CORS origins from a comma-separated env variable
+const allowedOrigins = (config.cors.origin)
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const path = require('path');
@@ -28,13 +34,18 @@ if (config.app.env === 'development') {
 }
 
 app.use('/api/public', cors({
-  origin: '*', 
+  origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-api-key'], 
+  allowedHeaders: ['Content-Type', 'x-api-key'],
 }), require('./routes/public'));
 
 app.use(cors({
-  origin: config.cors.origin,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: Origin '${origin}' not allowed`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID'],
