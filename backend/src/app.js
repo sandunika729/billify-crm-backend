@@ -7,17 +7,14 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const config = require('./config/app');
-
-// Support multiple CORS origins from a comma-separated env variable
-const allowedOrigins = (config.cors.origin)
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
 const routes = require('./routes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const path = require('path');
+
 const app = express();
 
+// ─── CORS must be FIRST — before helmet and everything else ───────────────────
+// Support multiple comma-separated origins in CORS_ORIGIN env variable
 const allowedOrigins = (config.cors.origin || 'https://billify-crm-frontend.vercel.app')
   .split(',')
   .map(o => o.trim())
@@ -38,13 +35,13 @@ const corsOptions = {
 // Handle OPTIONS preflight for ALL routes before any other middleware
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.use(helmet());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-
 app.use(compression());
 
 if (config.app.env === 'development') {
@@ -58,7 +55,6 @@ app.use('/api/public', cors({
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-api-key'],
 }), require('./routes/public'));
-
 
 app.use('/api', routes);
 
