@@ -9,21 +9,36 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config({ path: './src/config/.env' });
 
 // ─── CONFIG — edit these ────────────────────────────────────────────────────
-const TENANT_ID = 'Test Business 1'; // your shop's business_id
-const SUPER_ADMIN_EMAIL = 'superadmin@billify.lk';
+const BUSINESS_NAME        = 'Test Business 1'; // Name of the business
+const SUPER_ADMIN_EMAIL    = 'superadmin@billify.lk';
 const SUPER_ADMIN_PASSWORD = 'Admin@123';
 const FIRST_NAME = 'Admin';
-const LAST_NAME = 'Billify';
+const LAST_NAME  = 'Billify';
 // ────────────────────────────────────────────────────────────────────────────
 
 async function run() {
-  const { User, sequelize } = require('./src/models');
+  const { User, Tenant, sequelize } = require('./src/models');
 
   console.log('Synchronizing database tables...');
   await sequelize.sync({ alter: true });
   console.log('Tables synchronized!');
 
-  // Check if one already exists
+  // 1. Find or create the business
+  let tenant = await Tenant.findOne({ where: { name: BUSINESS_NAME } });
+  if (!tenant) {
+    tenant = await Tenant.create({
+      id: uuidv4(),
+      name: BUSINESS_NAME,
+      is_active: true
+    });
+    console.log(`Created new business: ${BUSINESS_NAME} with ID: ${tenant.id}`);
+  } else {
+    console.log(`Found existing business: ${BUSINESS_NAME} with ID: ${tenant.id}`);
+  }
+
+  const TENANT_ID = tenant.id;
+
+  // 2. Check if admin already exists
   const existing = await User.findOne({
     where: { business_id: TENANT_ID, role: 'super_admin' }
   });
