@@ -87,10 +87,11 @@ const crmQuoteService = {
         tenant_id: tenantId,
         quote_id: newQuote.id,
         product_id: item.product_id || null,
+        item_name: item.description || 'Custom Item',
         description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        total_price: item.unit_price * item.quantity
+        qty: item.quantity,
+        unit_price_lkr: item.unit_price,
+        line_total_lkr: item.unit_price * item.quantity
       }));
 
       await CrmQuoteItem.bulkCreate(quoteItemsData, { transaction });
