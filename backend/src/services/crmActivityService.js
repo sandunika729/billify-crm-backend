@@ -88,6 +88,13 @@ const crmActivityService = {
     return { interaction, formatted };
   },
 
+  async deleteInteraction({ id, tenantId }) {
+    const interaction = await CrmInteraction.findOne({ where: { id, tenant_id: tenantId } });
+    if (!interaction) throw new Error('Interaction not found.');
+    await interaction.destroy();
+    return true;
+  },
+
   
 
   async getCalendarActivities({ tenantId, start, end }) {

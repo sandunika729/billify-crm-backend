@@ -50,7 +50,26 @@ const crmActivityController = {
     }
   },
 
-  
+  async deleteInteraction(req, res) {
+    try {
+      await crmActivityService.deleteInteraction({ id: req.params.id, tenantId: req.tenantId });
+      
+      await logAudit({
+        ...getAuditContext(req),
+        action: 'delete',
+        entityType: 'interaction',
+        entityId: req.params.id,
+        description: `Deleted communication log`
+      });
+
+      return sendSuccess(res, null, 'Interaction deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting interaction:', error);
+      const statusCode = error.message.includes('not found') ? 404 : 500;
+      return sendError(res, error.message || 'Failed to delete interaction.', statusCode);
+    }
+  },
+
 
   async sendEmail(req, res) {
     try {

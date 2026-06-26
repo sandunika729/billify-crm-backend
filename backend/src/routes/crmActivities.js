@@ -34,6 +34,7 @@ router.delete('/:id', activityController.deleteActivity);
 
 router.get('/interactions', activityController.getInteractions);
 router.post('/interactions', activityController.createInteraction);
+router.delete('/interactions/:id', activityController.deleteInteraction);
 router.post('/upload-email', upload.single('emailFile'), activityController.uploadEmail);
 router.get('/preview-email', activityController.previewEmail);
 
