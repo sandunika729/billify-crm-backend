@@ -5,7 +5,7 @@ require('dotenv').config();
 const http = require('http');
 const app = require('./app');
 const config = require('./config/app');
-const { sequelize } = require('./models');
+const { sequelize, CrmTodo } = require('./models');
 const { initSocket } = require('./socket');
 const slaWatcher = require('./workers/slaWatcher');
 
@@ -24,6 +24,10 @@ const startServer = async () => {
     
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
+
+    // Auto-create crm_todos table if it doesn't exist
+    await CrmTodo.sync({ alter: true });
+    console.log('✅ Checked/Synchronized crm_todos table schema.');
 
     
     
