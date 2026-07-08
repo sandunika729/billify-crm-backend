@@ -2,6 +2,7 @@
 
 const crmActivityService = require('../services/crmActivityService');
 const emailService = require('../services/emailService');
+const notificationService = require('../services/notificationService');
 const { sendSuccess, sendError, getPagination, getPaginationMeta } = require('../utils/response');
 const { logAudit, getAuditContext } = require('../utils/auditLogger');
 
@@ -232,7 +233,7 @@ const crmActivityController = {
   async updateActivity(req, res) {
     try {
       const { id } = req.params;
-      const activity = await crmActivityService.updateActivity({
+      const { activity, beforeData } = await crmActivityService.updateActivity({
         id,
         tenantId: req.tenantId,
         data: req.body
@@ -243,8 +244,21 @@ const crmActivityController = {
         action: 'update',
         entityType: 'activity',
         entityId: activity.id,
+        before: beforeData,
+        after: activity.toJSON(),
         description: `Updated activity: ${activity.title}`
       });
+
+      if (activity.owner_id && activity.owner_id !== beforeData.owner_id && activity.owner_id !== req.user.id) {
+        await notificationService.createNotification({
+          tenant_id: req.tenantId,
+          user_id: activity.owner_id,
+          title: 'Activity Assigned',
+          body: `You have been assigned to an activity: ${activity.title}`,
+          link: `/crm/activities`,
+          type: 'assignment'
+        });
+      }
 
       return sendSuccess(res, activity, 'Activity updated successfully.', 200);
     } catch (error) {

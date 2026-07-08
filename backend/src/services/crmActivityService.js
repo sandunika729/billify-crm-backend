@@ -217,6 +217,7 @@ const crmActivityService = {
       throw new Error('Activity not found.');
     }
 
+    const beforeData = activity.toJSON();
     const { due_at, title, description, completed_at, owner_id } = data;
 
     if (due_at !== undefined) activity.due_at = due_at;
@@ -226,7 +227,7 @@ const crmActivityService = {
     if (owner_id !== undefined) activity.owner_id = owner_id;
 
     await activity.save();
-    return activity;
+    return { activity, beforeData };
   }
 };
 
