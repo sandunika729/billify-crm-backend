@@ -167,7 +167,8 @@ const crmActivityController = {
       const activities = await crmActivityService.getCalendarActivities({
         tenantId: req.tenantId,
         start,
-        end
+        end,
+        userId: req.user.id
       });
       return sendSuccess(res, activities, 'Calendar activities retrieved successfully.', 200);
     } catch (error) {
@@ -183,7 +184,8 @@ const crmActivityController = {
         tenantId: req.tenantId,
         related_type,
         related_id,
-        overdue
+        overdue,
+        userId: req.user.id
       });
       return sendSuccess(res, activities, 'Activities retrieved successfully.');
     } catch (error) {

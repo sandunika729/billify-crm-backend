@@ -97,9 +97,15 @@ const crmActivityService = {
 
   
 
-  async getCalendarActivities({ tenantId, start, end }) {
+  async getCalendarActivities({ tenantId, start, end, userId }) {
     const where = { tenant_id: tenantId };
     
+    where[Op.or] = [
+      { visibility: 'public' },
+      { visibility: 'private', owner_id: userId },
+      { visibility: null }
+    ];
+
     if (start && end) {
       where.due_at = {
         [Op.between]: [new Date(start), new Date(end)]
@@ -125,7 +131,7 @@ const crmActivityService = {
   },
 
   async createActivity({ tenantId, data, userId }) {
-    const { activity_type, title, description, due_at, owner_id, related_type, related_id } = data;
+    const { activity_type, title, description, due_at, owner_id, related_type, related_id, visibility } = data;
 
     if (!activity_type || !title || !due_at) {
       throw new Error('Activity type, title, and due date are required.');
@@ -140,13 +146,20 @@ const crmActivityService = {
       owner_id: owner_id || userId,
       related_type: related_type || 'system',
       related_id: related_id || 1, 
+      visibility: visibility || 'public',
     });
 
     return activity;
   },
 
-  async getActivitiesByEntity({ tenantId, related_type, related_id, overdue }) {
+  async getActivitiesByEntity({ tenantId, related_type, related_id, overdue, userId }) {
     const where = { tenant_id: tenantId };
+    
+    where[Op.or] = [
+      { visibility: 'public' },
+      { visibility: 'private', owner_id: userId },
+      { visibility: null }
+    ];
     if (related_type) where.related_type = related_type;
     if (related_id) where.related_id = related_id;
     if (overdue === 'true' || overdue === true) {
@@ -217,13 +230,14 @@ const crmActivityService = {
       throw new Error('Activity not found.');
     }
 
-    const { due_at, title, description, completed_at, owner_id } = data;
+    const { due_at, title, description, completed_at, owner_id, visibility } = data;
 
     if (due_at !== undefined) activity.due_at = due_at;
     if (title !== undefined) activity.title = title;
     if (description !== undefined) activity.description = description;
     if (completed_at !== undefined) activity.completed_at = completed_at;
     if (owner_id !== undefined) activity.owner_id = owner_id;
+    if (visibility !== undefined) activity.visibility = visibility;
 
     await activity.save();
     return activity;
