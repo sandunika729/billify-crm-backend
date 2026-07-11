@@ -17,13 +17,13 @@ const crmDashboardService = {
     });
 
     const activeLeads = await CrmLead.count({
-      where: { tenant_id: tenantId, status: { [Op.notIn]: ['won', 'lost'] } }
+      where: { tenant_id: tenantId, status: { [Op.notIn]: ['converted', 'disqualified'] } }
     });
 
     const pendingFollowUps = await CrmLead.count({
       where: { 
         tenant_id: tenantId, 
-        status: { [Op.notIn]: ['won', 'lost'] },
+        status: { [Op.notIn]: ['converted', 'disqualified'] },
         next_follow_up_at: { [Op.not]: null, [Op.lte]: new Date() }
       }
     });
@@ -114,7 +114,7 @@ const crmDashboardService = {
     });
 
     const leadsTotal = await CrmLead.count({ where: { tenant_id: tenantId, ...dateFilter } });
-    const leadsConverted = await CrmLead.count({ where: { tenant_id: tenantId, status: 'won', ...dateFilter } });
+    const leadsConverted = await CrmLead.count({ where: { tenant_id: tenantId, status: 'converted', ...dateFilter } });
 
     
     const sixMonthsAgo = new Date();
