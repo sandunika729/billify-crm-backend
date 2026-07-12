@@ -43,8 +43,12 @@ const authController = {
         description: `User ${result.user.email} logged in.`,
       });
 
-      
-      res.cookie('refreshToken', result.refreshToken, REFRESH_COOKIE_OPTIONS);
+      const cookieOptions = { ...REFRESH_COOKIE_OPTIONS };
+      if (!req.body.rememberMe) {
+        delete cookieOptions.maxAge; // Make it a session cookie (expires on browser close)
+      }
+
+      res.cookie('refreshToken', result.refreshToken, cookieOptions);
 
       
       return sendSuccess(res, {
