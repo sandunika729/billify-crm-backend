@@ -51,10 +51,10 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'cold',
     },
-    is_flagged: {
-      type: DataTypes.BOOLEAN,
+    flag_status: {
+      type: DataTypes.ENUM('none', 'flagged', 'completed'),
       allowNull: false,
-      defaultValue: false,
+      defaultValue: 'none',
     },
     interest: {
       type: DataTypes.STRING(255),
