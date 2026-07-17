@@ -51,6 +51,11 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'cold',
     },
+    is_flagged: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     interest: {
       type: DataTypes.STRING(255),
       allowNull: true,
