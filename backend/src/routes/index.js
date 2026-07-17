@@ -16,6 +16,9 @@ router.get('/health', (req, res) => {
 
 router.use('/auth', authRoutes);
 
+// Public APIs
+router.use('/api/public/support', require('./publicSupport'));
+
 router.use('/crm/dashboard', require('./crmDashboard'));
 router.use('/crm/customers', require('./crmCustomers'));
 router.use('/crm/leads', require('./crmLeads'));
