@@ -61,7 +61,7 @@ if (config.app.env === 'development') {
 app.use('/api/public', cors({
   origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-api-key'],
+  allowedHeaders: ['Content-Type', 'x-api-key', 'x-tenant-id'],
 }), require('./routes/public'));
 
 app.use('/api', routes);

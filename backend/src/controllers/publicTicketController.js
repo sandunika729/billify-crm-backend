@@ -100,6 +100,36 @@ const publicTicketController = {
       return sendError(res, 'Failed to submit ticket. Please try again later.', 500);
     }
   },
+  async getTicket(req, res) {
+    try {
+      const apiKey = req.headers['x-api-key'];
+      if (!apiKey) return sendError(res, 'API key is required.', 401);
+
+      const shopProfile = await CrmShopProfile.findOne({ where: { public_api_key: apiKey } });
+      if (!shopProfile) return sendError(res, 'Invalid API key.', 401);
+
+      const tenantId = shopProfile.tenant_id;
+      const { ticket_no } = req.params;
+
+      const ticket = await CrmTicket.findOne({
+        where: { ticket_no, tenant_id: tenantId },
+        include: [{
+          model: CrmTicketMessage,
+          as: 'messages',
+          where: { is_internal: false },
+          required: false,
+          order: [['created_at', 'ASC']],
+        }],
+      });
+
+      if (!ticket) return sendError(res, 'Ticket not found.', 404);
+
+      return sendSuccess(res, ticket, 'Ticket retrieved successfully.');
+    } catch (error) {
+      console.error('Error fetching public ticket:', error);
+      return sendError(res, 'Failed to fetch ticket.', 500);
+    }
+  },
 };
 
 module.exports = publicTicketController;

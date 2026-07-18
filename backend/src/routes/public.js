@@ -43,5 +43,6 @@ setInterval(() => {
 }, 30 * 60 * 1000);
 
 router.post('/tickets', rateLimiter, publicTicketController.submitTicket);
+router.get('/tickets/:ticket_no', publicTicketController.getTicket);
 
 module.exports = router;
