@@ -2,7 +2,6 @@
 
 const { Op } = require('sequelize');
 const { CrmInteraction, CrmActivity, CrmCustomer, User, CrmDeal, CrmLead, CrmQuote } = require('../models');
-const outlookCalendarService = require('./outlookCalendarService');
 
 const crmActivityService = {
   async getInteractions({ tenantId, limit, offset, channel }) {

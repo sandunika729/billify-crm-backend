@@ -4,8 +4,6 @@ const express = require('express');
 const router = express.Router();
 
 const authRoutes = require('./auth');
-const outlookRoutes = require('./outlook');
-const outlookAuthController = require('../controllers/outlookAuthController');
 
 router.get('/health', (req, res) => {
   res.json({
@@ -17,12 +15,6 @@ router.get('/health', (req, res) => {
 });
 
 router.use('/auth', authRoutes);
-
-// Outlook OAuth callback — public route (no auth middleware, Microsoft redirects here)
-router.get('/auth/outlook/callback', outlookAuthController.handleCallback);
-
-// Outlook Calendar CRM routes (authenticated)
-router.use('/crm/outlook', outlookRoutes);
 
 // Public APIs
 router.use('/api/public/support', require('./publicSupport'));
