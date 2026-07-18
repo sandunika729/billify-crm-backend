@@ -2,6 +2,7 @@
 
 const { Op } = require('sequelize');
 const { CrmLead, CrmCustomer, CrmDeal, User, CrmLeadAssignee } = require('../models');
+const { isValidEmail, isValidPhone } = require('../utils/validators');
 
 const crmLeadService = {
   async getAllLeads({ tenantId, limit, offset, search, status, source, owner_id, userRole, userId }) {
@@ -91,6 +92,9 @@ const crmLeadService = {
 
     if (!name) throw new Error('Lead name is required.');
 
+    if (!isValidEmail(email)) throw new Error('Invalid email format.');
+    if (!isValidPhone(phone)) throw new Error('Invalid phone format.');
+
     const newLead = await CrmLead.create({
       tenant_id: tenantId,
       name,
@@ -141,6 +145,9 @@ const crmLeadService = {
 
     delete modelData.id;
     delete modelData.tenant_id;
+
+    if (modelData.email !== undefined && !isValidEmail(modelData.email)) throw new Error('Invalid email format.');
+    if (modelData.phone !== undefined && !isValidPhone(modelData.phone)) throw new Error('Invalid phone format.');
 
     if (modelData.custom_fields !== undefined) {
       lead.custom_fields = modelData.custom_fields;

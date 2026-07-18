@@ -13,6 +13,7 @@ const {
   Bill,
   CustomerLedger
 } = require('../models');
+const { isValidEmail, isValidPhone } = require('../utils/validators');
 
 const crmCustomerService = {
   async getAllCustomers({ tenantId, limit, offset, search, type, status }) {
@@ -71,6 +72,10 @@ const crmCustomerService = {
       throw new Error('Customer name is required.');
     }
 
+    if (!isValidEmail(email)) throw new Error('Invalid email format.');
+    if (!isValidPhone(phone)) throw new Error('Invalid primary phone format.');
+    if (!isValidPhone(secondary_phone)) throw new Error('Invalid secondary phone format.');
+
     if (email || phone) {
       const duplicateConditions = [];
       if (email) duplicateConditions.push({ email });
@@ -121,6 +126,10 @@ const crmCustomerService = {
     if (!customer) {
       throw new Error('Customer not found.');
     }
+
+    if (updateData.email !== undefined && !isValidEmail(updateData.email)) throw new Error('Invalid email format.');
+    if (updateData.phone !== undefined && !isValidPhone(updateData.phone)) throw new Error('Invalid primary phone format.');
+    if (updateData.secondary_phone !== undefined && !isValidPhone(updateData.secondary_phone)) throw new Error('Invalid secondary phone format.');
 
     delete updateData.id;
     delete updateData.tenant_id;

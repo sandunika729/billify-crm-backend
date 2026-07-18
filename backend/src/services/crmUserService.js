@@ -3,6 +3,7 @@
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { User, RolePermission, sequelize } = require('../models');
+const { isValidEmail, isValidPhone } = require('../utils/validators');
 const { Op } = require('sequelize');
 
 const CRM_ROLES = [
@@ -51,6 +52,8 @@ const crmUserService = {
 
     
     if (!email || !email.trim()) throw new Error('Email is required.');
+    if (!isValidEmail(email)) throw new Error('Invalid email format.');
+    if (!isValidPhone(phone)) throw new Error('Invalid phone format.');
     if (!password || password.length < 6) throw new Error('Password must be at least 6 characters.');
     if (!role || !CRM_ROLES.includes(role)) throw new Error(`Invalid role. Must be one of: ${CRM_ROLES.join(', ')}`);
 
@@ -101,6 +104,10 @@ const crmUserService = {
 
     if (role && !CRM_ROLES.includes(role)) {
       throw new Error(`Invalid role. Must be one of: ${CRM_ROLES.join(', ')}`);
+    }
+
+    if (phone !== undefined && !isValidPhone(phone)) {
+      throw new Error('Invalid phone format.');
     }
 
     const before = {

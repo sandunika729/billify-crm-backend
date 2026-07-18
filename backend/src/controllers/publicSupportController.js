@@ -4,6 +4,7 @@ const { CrmCustomer, CrmTicket, CrmTicketMessage } = require('../models');
 const { sendSuccess, sendError } = require('../utils/response');
 const { emitToTenant } = require('../socket');
 const crmSlaService = require('../services/crmSlaService');
+const { isValidEmail, isValidPhone } = require('../utils/validators');
 
 const publicSupportController = {
   // Create a new ticket from external site
@@ -19,6 +20,9 @@ const publicSupportController = {
       if (!subject || !name || !email) {
         return sendError(res, 'Name, email, and subject are required.', 400);
       }
+
+      if (email && !isValidEmail(email)) return sendError(res, 'Invalid email format.', 400);
+      if (phone && !isValidPhone(phone)) return sendError(res, 'Invalid phone format.', 400);
 
       // Find or create customer based on email
       let customer = await CrmCustomer.findOne({ where: { email, tenant_id: tenantId } });

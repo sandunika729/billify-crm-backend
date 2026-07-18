@@ -4,6 +4,7 @@ const { CrmShopProfile, CrmCustomer, CrmTicket, CrmTicketMessage } = require('..
 const { sendSuccess, sendError } = require('../utils/response');
 const { emitToTenant, emitToTicket } = require('../socket');
 const crmSlaService = require('../services/crmSlaService');
+const { isValidEmail, isValidPhone } = require('../utils/validators');
 
 const publicTicketController = {
   async submitTicket(req, res) {
@@ -28,6 +29,9 @@ const publicTicketController = {
       if (!name || !subject || !message) {
         return sendError(res, 'Name, subject, and message are required.', 400);
       }
+
+      if (email && !isValidEmail(email)) return sendError(res, 'Invalid email format.', 400);
+      if (phone && !isValidPhone(phone)) return sendError(res, 'Invalid phone format.', 400);
 
       
       let customer = null;

@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const { CrmShopProfile } = require('../models');
 const { sendSuccess, sendError } = require('../utils/response');
+const { isValidEmail, isValidPhone } = require('../utils/validators');
 
 const crmShopProfileController = {
   async getProfile(req, res) {
@@ -20,6 +21,9 @@ const crmShopProfileController = {
   async upsertProfile(req, res) {
     try {
       const { shop_name, email, phone, address, logo_base64 } = req.body;
+
+      if (email !== undefined && !isValidEmail(email)) return sendError(res, 'Invalid email format.', 400);
+      if (phone !== undefined && !isValidPhone(phone)) return sendError(res, 'Invalid phone format.', 400);
 
       const [profile, created] = await CrmShopProfile.findOrCreate({
         where: { tenant_id: req.tenantId },
