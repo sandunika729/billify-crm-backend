@@ -24,7 +24,14 @@ function isValidPhone(phone) {
   
   // 2. Count the actual digits. Real phone numbers are 10 to 12 digits.
   const digitCount = sanitized.replace(/\D/g, '').length;
-  return digitCount >= 10 && digitCount <= 12;
+  
+  if (sanitized.startsWith('+')) {
+    // International numbers typically 11 to 12 digits (e.g., +94712345678)
+    return digitCount >= 11 && digitCount <= 12;
+  }
+  
+  // Local numbers (e.g. Sri Lanka) must be EXACTLY 10 digits (e.g. 0740079640)
+  return digitCount === 10;
 }
 
 module.exports = {
