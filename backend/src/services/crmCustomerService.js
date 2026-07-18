@@ -71,11 +71,10 @@ const crmCustomerService = {
       throw new Error('Customer name is required.');
     }
 
-    if (email || phone || company_name) {
+    if (email || phone) {
       const duplicateConditions = [];
       if (email) duplicateConditions.push({ email });
       if (phone) duplicateConditions.push({ phone });
-      if (company_name) duplicateConditions.push({ company_name });
       
       const existingCustomer = await CrmCustomer.findOne({
         where: {
@@ -85,7 +84,7 @@ const crmCustomerService = {
       });
       
       if (existingCustomer) {
-        throw new Error('A customer with this email, phone, or company name already exists.');
+        throw new Error('A customer with this email or phone number already exists.');
       }
     }
 
