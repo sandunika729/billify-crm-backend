@@ -32,7 +32,7 @@ const config = {
   },
 
   cors: {
-    origin: process.env.CORS_ORIGIN || '',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   },
 
   upload: {
@@ -46,7 +46,7 @@ const config = {
   },
 
   socket: {
-    corsOrigin: process.env.SOCKET_CORS_ORIGIN || '',
+    corsOrigin: process.env.SOCKET_CORS_ORIGIN || 'http://localhost:3000',
   },
 };
 
